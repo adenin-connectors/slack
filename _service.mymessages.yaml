@@ -1,0 +1,8 @@
+ServiceName: 'mymessages'
+InterfaceName: 'items'
+Description: 'My Messages'
+APIDoc: ''
+Interfaces: 'daterange'
+RequiredScopes: ''
+AdditionalParameters:
+Method: ''
