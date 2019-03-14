@@ -47,7 +47,7 @@ function filterMessagesByDateRange(response, daterange) {
     //converts time to proper miliseconds
     let milis = messages[i].ts.split('.')[0] + '000';
     if (milis > start && milis < end) {
-      filtered.push(messages[0]);
+      filtered.push(messages[i]);
     }
   }
 
