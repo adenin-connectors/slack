@@ -2,7 +2,7 @@ ServiceName: 'mymessages'
 InterfaceName: 'items'
 Description: 'My Messages'
 APIDoc: ''
-Interfaces: 'daterange'
+Interfaces: 'daterange,search,pagination'
 RequiredScopes: ''
 AdditionalParameters:
 Method: ''

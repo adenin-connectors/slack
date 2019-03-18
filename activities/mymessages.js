@@ -14,15 +14,30 @@ module.exports = async function (activity) {
     }
 
     let channelId = getGeneralChannelId(userConversations);
-    const response = await api(`/channels.history?channel=${channelId}`);
+
+    var dateRange = cfActivity.dateRange(activity, "today");
+    let start = new Date(dateRange.startDate).valueOf().toString();
+    let end = new Date(dateRange.endDate).valueOf().toString();
+    //this is the format of the time that slack uses, without '.' and extra numbers it falls back to defaults
+    let oldest = start.substring(0, start.length - 3) + "." + start.substring(start.length - 3) + '000';
+    let latest = end.substring(0, end.length - 3) + "." + end.substring(end.length - 3) + '000';
+
+    let pagination = cfActivity.pagination(activity);
+    if (pagination.nextpage) {
+      latest = pagination.nextpage;
+    }
+
+    const response = await api(`/channels.history?channel=${channelId}` +
+      `&oldest=${oldest}&latest=${latest}&count=${pagination.pageSize}`);
 
     if (!cfActivity.isResponseOk(activity, response)) {
       return;
     }
 
-    var dateRange = cfActivity.dateRange(activity, "today");
-    //passess messages into filter function to filter by date, then converts messages to items
-    activity.Response.Data = api.convertMessagesToItems(filterMessagesByDateRange(response, dateRange));
+    activity.Response.Data = api.convertMessagesToItems(response.body.messages);
+    if (response.body.has_more == true) {
+      activity.Response.Data._nextpage = response.body.messages[pagination.pageSize - 1].ts;
+    }
   } catch (error) {
     cfActivity.handleError(activity, error);
   }
@@ -35,21 +50,4 @@ function getGeneralChannelId(data) {
       return channels[i].id;
     }
   }
-}
-//** filters messages based on privided daterange */
-function filterMessagesByDateRange(response, daterange) {
-  let filtered = [];
-  let messages = response.body.messages;
-  let start = new Date(daterange.startDate).valueOf();
-  let end = new Date(daterange.endDate).valueOf();
-
-  for (let i = 0; i < messages.length; i++) {
-    //converts time to proper miliseconds
-    let milis = messages[i].ts.split('.')[0] + '000';
-    if (milis > start && milis < end) {
-      filtered.push(messages[i]);
-    }
-  }
-
-  return filtered;
 }
