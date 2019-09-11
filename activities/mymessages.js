@@ -9,7 +9,7 @@ module.exports = async function (activity) {
 
     let channelId = getGeneralChannelId(userConversations);
 
-    var dateRange = $.dateRange(activity, "today");
+    var dateRange = $.dateRange(activity);
     let start = new Date(dateRange.startDate).valueOf().toString();
     let end = new Date(dateRange.endDate).valueOf().toString();
     //this is the format of the time that slack uses, without '.' and extra numbers it falls back to defaults
